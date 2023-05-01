@@ -221,7 +221,7 @@ def process_one(detail, config, setting):
     return ret
 
 
-def upload_process(gist_id, token, setting):
+def upload_process(gist_id, token):
     config, cookie, uploaded, setting = get_gist(gist_id, token)
     with open("cookies.json", "w", encoding="utf8") as tmp:
         tmp.write(json.dumps(cookie))
