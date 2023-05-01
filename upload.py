@@ -15,6 +15,7 @@ UPLOAD_SLEEP_SECOND = 60 * 2  # 2min
 UPLOADED_VIDEO_FILE = "uploaded_video.json"
 CONFIG_FILE = "config.json"
 COOKIE_FILE = "cookie.json"
+SETTING_FILE = "setting.json"
 VERIFY = os.environ.get("verify", "1") == "1"
 PROXY = {
     "https": os.environ.get("https_proxy", None)
@@ -40,12 +41,13 @@ def get_gist(_gid, token):
         UPLOADED_VIDEO_FILE, {}).get("content", "{}")
     c = json.loads(_data["files"][CONFIG_FILE]["content"])
     t = json.loads(_data["files"][COOKIE_FILE]["content"])
+    s = json.loads(_data["files"][SETTING_FILE]["content"])
     try:
         u = json.loads(uploaded_file)
         return c, t, u
     except Exception as e:
         logging.error(f"gist 格式错误，重新初始化:{e}")
-    return c, t, {}
+    return c, t, {}, s
 
 
 def update_gist(_gid, token, file, data):
@@ -143,7 +145,7 @@ def download_cover(url, out):
         tmp.write(res)
 
 
-def upload_video(video_file, cover_file, _config, detail):
+def upload_video(video_file, cover_file, _config, detail, setting):
     title = detail['title']
     if len(title) > 80:
         title = title[:80]
@@ -158,7 +160,7 @@ def upload_video(video_file, cover_file, _config, detail):
                 "cover": cover_file,  # 视频封面
                 "title": title,
                 "desc_format_id": 0,
-                "desc": "搬运：" + detail["origin"],
+                "desc": setting['desc'],
                 "dolby": 0,  # 杜比音效
                 "dynamic": "",
                 "subtitle": {
@@ -195,7 +197,7 @@ def upload_video(video_file, cover_file, _config, detail):
     return json.loads(data)
 
 
-def process_one(detail, config):
+def process_one(detail, config, setting):
     logging.info(f'开始：{detail["vid"]}')
     format = ["webm", "flv", "mp4"]
     v_ext = None
@@ -209,20 +211,20 @@ def process_one(detail, config):
         return
     download_cover(detail["cover_url"], detail["vid"] + ".jpg")
     ret = upload_video(detail["vid"] + f".{v_ext}",
-                       detail["vid"] + ".jpg", config, detail)
+                       detail["vid"] + ".jpg", config, detail, setting)
     os.remove(detail["vid"] + f".{v_ext}")
     os.remove(detail["vid"] + ".jpg")
     return ret
 
 
 def upload_process(gist_id, token):
-    config, cookie, uploaded = get_gist(gist_id, token)
+    config, cookie, uploaded, setting = get_gist(gist_id, token)
     with open("cookies.json", "w", encoding="utf8") as tmp:
         tmp.write(json.dumps(cookie))
     need_to_process = get_all_video(config)
     need = select_not_uploaded(need_to_process, uploaded)
     for i in need:
-        ret = process_one(i["detail"], i["config"])
+        ret = process_one(i["detail"], i["config"], setting)
         if ret is None:
             continue
         i["ret"] = ret
