@@ -44,7 +44,7 @@ def get_gist(_gid, token):
     s = json.loads(_data["files"][SETTING_FILE]["content"])
     try:
         u = json.loads(uploaded_file)
-        return c, t, u
+        return c, t, u, s
     except Exception as e:
         logging.error(f"gist 格式错误，重新初始化:{e}")
     return c, t, {}, s
