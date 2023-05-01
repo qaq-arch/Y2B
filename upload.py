@@ -205,11 +205,14 @@ def process_one(detail, config, setting):
     logging.info(f'开始：{detail["vid"]}')
     format = ["mp4", "webm", "flv"]
     v_ext = None
-    for ext in format:
-        if download_video(detail["origin"], detail["vid"] + f".{ext}", f"{ext}"):
-            v_ext = ext
-            logging.info(f"使用格式：{ext}")
-            break
+    # for ext in format:
+    #     if download_video(detail["origin"], detail["vid"] + f".{ext}", f"{ext}"):
+    #         v_ext = ext
+    #         logging.info(f"使用格式：{ext}")
+    #         break
+    ext = 'mp4'
+    if download_video(detail["origin"], detail["vid"] + f".{ext}", f"{ext}"):
+        v_ext = ext
     if v_ext is None:
         logging.error("无合适格式")
         return
