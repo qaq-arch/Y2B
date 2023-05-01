@@ -124,7 +124,7 @@ def get_all_video(_config, setting):
 def download_video(url, out, format):
     try:
         msg = subprocess.check_output(
-            ["yt-dlp", url, "-f", "bestvideo[vcodec=vp9.2][height=1080][fps=60]/bestvideo[vcodec=avc1][height=1080][fps=60]+bestaudio", "-o", out], stderr=subprocess.STDOUT)
+            ["yt-dlp", url, "-f", format + "[height=1080][fps=60]", "-o", out], stderr=subprocess.STDOUT)
         logging.debug(msg[-512:])
         logging.info(f"视频下载完毕，大小：{get_file_size(out)} MB")
         return True
