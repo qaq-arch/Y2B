@@ -78,12 +78,15 @@ def get_file_size(filename):
     return int(sz/1024/1024)
 
 
-def get_video_list(channel_id: str):
+def get_video_list(channel_id: str, setting):
     res = requests.get(
         "https://www.youtube.com/feeds/videos.xml?channel_id=" + channel_id).text
     res = xmltodict.parse(res)
     ret = []
+    count = 0
     for elem in res.get("feed", {}).get("entry", []):
+        if count > setting['count']:
+            break
         ret.append({
             "vid": elem.get("yt:videoId"),
             "title": elem.get("title"),
@@ -91,6 +94,7 @@ def get_video_list(channel_id: str):
             "cover_url": elem["media:group"]["media:thumbnail"]["@url"],
             # "desc": elem["media:group"]["media:description"],
         })
+        count += 1
     return ret
 
 
@@ -105,10 +109,10 @@ def select_not_uploaded(video_list: list, _uploaded: dict):
     return ret
 
 
-def get_all_video(_config):
+def get_all_video(_config, setting):
     ret = []
     for i in _config:
-        res = get_video_list(i["channel_id"])
+        res = get_video_list(i["channel_id"], setting)
         for j in res:
             ret.append({
                 "detail": j,
@@ -217,11 +221,11 @@ def process_one(detail, config, setting):
     return ret
 
 
-def upload_process(gist_id, token):
+def upload_process(gist_id, token, setting):
     config, cookie, uploaded, setting = get_gist(gist_id, token)
     with open("cookies.json", "w", encoding="utf8") as tmp:
         tmp.write(json.dumps(cookie))
-    need_to_process = get_all_video(config)
+    need_to_process = get_all_video(config, setting)
     need = select_not_uploaded(need_to_process, uploaded)
     for i in need:
         ret = process_one(i["detail"], i["config"], setting)
