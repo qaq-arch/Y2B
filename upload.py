@@ -124,7 +124,7 @@ def get_all_video(_config, setting):
 def download_video(url, out, format):
     try:
         msg = subprocess.check_output(
-            ["yt-dlp", url, "-f", format + "[height=1080][fps=60]", "-o", out], stderr=subprocess.STDOUT)
+            ["yt-dlp", url, "-f", "bv[ext=mp4]+ba[ext=m4a]", "–embed-metadata –merge-output-format", "mp4", "-o", out], stderr=subprocess.STDOUT)
         logging.debug(msg[-512:])
         logging.info(f"视频下载完毕，大小：{get_file_size(out)} MB")
         return True
@@ -203,7 +203,7 @@ def upload_video(video_file, cover_file, _config, detail, setting):
 
 def process_one(detail, config, setting):
     logging.info(f'开始：{detail["vid"]}')
-    format = ["webm", "flv", "mp4"]
+    format = ["mp4", "webm", "flv"]
     v_ext = None
     for ext in format:
         if download_video(detail["origin"], detail["vid"] + f".{ext}", f"{ext}"):
