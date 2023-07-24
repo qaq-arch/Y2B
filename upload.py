@@ -154,7 +154,7 @@ def upload_video(video_file, cover_file, _config, detail, setting):
     if len(title) > 80:
         title = title[:80]
     yml = {
-        "line": "kodo",
+        "line": "cos",
         "limit": 3,
         "streamers": {
             video_file: {
