@@ -18,7 +18,7 @@ on:
           - DEBUG
 
 env:
-  BILI_UP_VER: v0.1.14
+  BILI_UP_VER: v0.1.17
 
 jobs:
   main:
