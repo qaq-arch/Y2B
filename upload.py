@@ -21,7 +21,7 @@ PROXY = {
     "https": os.environ.get("https_proxy", None)
 }
 
-
+# get_gist
 def get_gist(_gid, token):
     """通过 gist id 获取已上传数据"""
     rsp = requests.get(
